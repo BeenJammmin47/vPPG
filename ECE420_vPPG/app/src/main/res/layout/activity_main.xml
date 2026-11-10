@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  This file is the UI that the old Kotlin file built in code with Compose.
+  In the classic (Java) Android system, the layout lives here in XML and the
+  logic lives in MainActivity.java. Each View with an android:id can be grabbed
+  in Java with findViewById(R.id.<that_id>).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title: "Live Video Feed" -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Live Video Feed"
+        android:textAppearance="?attr/textAppearanceHeadlineMedium" />
+
+    <!-- MAIN ROW: camera on the left, controls + plots on the right -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="550dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <!-- LEFT: camera preview inside a black box -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.5"
+            android:background="@android:color/black">
+
+            <!-- CameraX draws the live feed into this view -->
+            <androidx.camera.view.PreviewView
+                android:id="@+id/previewView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <!-- Shown instead of the feed when permission is missing -->
+            <TextView
+                android:id="@+id/permissionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Camera permission required"
+                android:textColor="@android:color/white"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- RIGHT: controls and ROI plots -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Camera Controls"
+                android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+            <!-- Flashlight switch row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Flashlight" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/flashlightSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false" />
+            </LinearLayout>
+
+            <!-- Exposure lock switch row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Lock Exposure" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/exposureSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false" />
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="ROI Intensity Signals"
+                android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+            <!-- Placeholder box for the five ROI plots -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="12dp"
+                android:background="#E0E0E0">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Five ROI signal plots will go here" />
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp" />
+
+    <!-- BPM display -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Estimated Heart Rate:"
+        android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+    <TextView
+        android:id="@+id/bpmText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="XXX BPM"
+        android:textAppearance="?attr/textAppearanceHeadlineLarge" />
+
+    <TextView
+        android:id="@+id/confidenceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Confidence: XX%"
+        android:textAppearance="?attr/textAppearanceHeadlineMedium" />
+
+    <TextView
+        android:id="@+id/sourceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Source: ROI X"
+        android:textAppearance="?attr/textAppearanceHeadlineMedium" />
+</LinearLayout>
