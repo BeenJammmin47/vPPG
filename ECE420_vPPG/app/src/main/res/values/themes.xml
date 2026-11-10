@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Material3 theme so the Material widgets (SwitchMaterial, MaterialDivider)
+         and the ?attr/textAppearance* styles used in the layout resolve correctly. -->
+    <style name="Theme.ECE420_vPPG" parent="Theme.Material3.DayNight.NoActionBar" />
+</resources>

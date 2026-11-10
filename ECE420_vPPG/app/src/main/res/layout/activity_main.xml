@@ -18,6 +18,16 @@
         android:text="Live Video Feed"
         android:textAppearance="?attr/textAppearanceHeadlineMedium" />
 
+    <!-- FPS feed -->
+    <TextView
+        android:id="@+id/fpsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FPS: --"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="4dp" />
+
     <!-- MAIN ROW: camera on the left, controls + plots on the right -->
 
     <LinearLayout
