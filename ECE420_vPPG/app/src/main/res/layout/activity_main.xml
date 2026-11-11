@@ -49,6 +49,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
+            <!-- ROI overlay -->
+            <com.example.ece420_vppg.ROIOverlayView
+                android:id="@+id/roiOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="false" />
+
             <!-- Shown instead of the feed when permission is missing -->
             <TextView
                 android:id="@+id/permissionText"
@@ -129,18 +136,12 @@
                 android:textAppearance="?attr/textAppearanceTitleLarge" />
 
             <!-- Placeholder box for the five ROI plots -->
-            <FrameLayout
+            <com.example.ece420_vppg.IntensityPlotView
+                android:id="@+id/intensityPlot"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginTop="12dp"
-                android:background="#E0E0E0">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Five ROI signal plots will go here" />
-            </FrameLayout>
+                android:background="#E0E0E0" />
         </LinearLayout>
     </LinearLayout>
 

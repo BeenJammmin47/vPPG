@@ -3,6 +3,10 @@
 #include <vector>
 #include <cmath>
 #include "vppg_dsp.h"
+#include <android/log.h>
+
+#define LOG_TAG "vPPG_CPP"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
 constexpr double PI = 3.14159265358979323846;
 
@@ -28,4 +32,15 @@ Java_com_example_ece420_1vppg_MainActivity_testNative(
 
     double bpm = calculateBPM(signal, fps);
     return static_cast<jint>(std::round(bpm));
+}
+
+// receive weighted RGB intensity
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_ece420_1vppg_MainActivity_addSample(
+        JNIEnv* env,
+        jobject thiz,
+        jdouble intensity){
+
+    addIntensitySample(intensity);
 }

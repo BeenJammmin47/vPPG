@@ -28,9 +28,11 @@ import android.util.Range;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.nio.ByteBuffer;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.common.util.concurrent.ListenableFuture;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     // JNI function implemented in C++. Kotlin wrote `external fun testNative(): Int`.
     public native int testNative();
+    public native void addSample(double intensity);
 
     // Views we need to touch from code (found by their android:id in the XML layout).
     private PreviewView previewView;
@@ -59,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     // Variabls for measuring FPS
     private int frameCount = 0;
     private long startTime = 0;
+
+    private IntensityPlotView intensityPlot;
 
     // Handles the camera-permission pop-up. This replaces Compose's
     // rememberLauncherForActivityResult. The lambda runs when the user answers.
@@ -91,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
         flashlightSwitch = findViewById(R.id.flashlightSwitch);
         exposureSwitch = findViewById(R.id.exposureSwitch);
         fpsText = findViewById(R.id.fpsText);
+        intensityPlot = findViewById(R.id.intensityPlot);
 
         // Flashlight toggle (Compose: Switch onCheckedChange -> enableTorch).
         flashlightSwitch.setOnCheckedChangeListener((button, isChecked) -> {
@@ -208,6 +214,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void processFrame(ImageProxy image) {
 
+        // call ROI extraction
+        extractROI(image);
+
         // Get image dimensions
         int width = image.getWidth();
         int height = image.getHeight();
@@ -254,5 +263,87 @@ public class MainActivity extends AppCompatActivity {
         if (cameraExecutor != null) {
             cameraExecutor.shutdown();
         }
+    }
+
+    private void extractROI(ImageProxy image) {
+
+        // get ROI dimension
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        // define 20x20 ROI
+        int roiSize = 20;
+
+        // relative ROI positions
+        float[][] positions = {
+                {0.50f, 0.50f}, // ROI 1, center
+                {0.15f, 0.15f}, // ROI 2, top-left
+                {0.85f, 0.15f}, // ROI 3, top-right
+                {0.15f, 0.85f}, // ROI 4, bottom-left
+                {0.85f, 0.85f}  // ROI 5, bottom-right
+        };
+
+        // array holds one weighted average for each ROI
+        double[] averages = new double[5];
+
+        // get image RGBA data
+        ImageProxy.PlaneProxy plane = image.getPlanes()[0];
+        ByteBuffer buffer = plane.getBuffer();
+
+        // get memory layout
+        int rowStride = plane.getRowStride();
+        int pixelStride = plane.getPixelStride();
+
+        // process each ROI
+        for (int i = 0; i < 5; i++){
+
+            // calculate centers and start/end locations
+            int centerX = Math.round(positions[i][0] * width);
+            int centerY = Math.round(positions[i][1] * height);
+            int xStart = centerX - roiSize / 2;
+            int yStart = centerY - roiSize / 2;
+            int xEnd = xStart + roiSize;
+            int yEnd = yStart + roiSize;
+
+            // initialize sums. not using blue since we are not using blue in our weightedAvg
+            double redSum = 0;
+            double greenSum = 0;
+
+            // calculate the average in this ROI
+            for (int y = yStart; y < yEnd; y++){
+                for (int x = xStart; x < xEnd; x++){
+
+                    // find the pixel in the ROI
+                    int pixelOffset = y * rowStride + x * pixelStride;
+
+                    // RGBA byte ordering
+                    int r = buffer.get(pixelOffset) & 0xFF;
+                    int g = buffer.get(pixelOffset + 1) & 0xFF;
+
+                    redSum += r;
+                    greenSum += g;
+                }
+            }
+
+            // get total ROI pixel size
+            int pixels = roiSize * roiSize;
+
+            // calculate averages
+            double redAvg = redSum / pixels;
+            double greenAvg = greenSum / pixels;
+
+            // write weighted average onto averages array
+            // research paper we based this off of uses 0.67R + 0.33G weights
+            averages[i] = 0.67 * redAvg + 0.33 * greenAvg;
+        }
+
+        // send all the averages to the plot
+        runOnUiThread(() -> {
+            intensityPlot.addSample(averages);
+        });
+
+        // Right now C++ implementation only uses center ROI
+        // CHANGE THIS LATER TO FULL 5 ROI INPUT ONCE CENTER ROI FUNCTIONALITY WORKS
+        addSample(averages[0]);
     }
 }
